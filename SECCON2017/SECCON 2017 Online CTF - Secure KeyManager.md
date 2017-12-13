@@ -1,4 +1,5 @@
-##SECCON 2017 Online CTF - Secure KeyManager
+## SECCON 2017 Online CTF - Secure KeyManager
+@[36 solved | 400 points]
 >Arch:     amd64-64-little
 >RELRO:    Partial RELRO
 >Stack:    Canary found
@@ -19,7 +20,7 @@
 >9.change master pass
 >0.exit
 
-####Add
+#### Add
 Add功能用于创建名为KEY的结构体，结构体如下所示：
 ```c
 struct KEY{
@@ -60,7 +61,7 @@ int add_key()
 }
 ```
 
-####Edit
+#### Edit
 Edit功能可以修改已经创建的结构体的成员变量key,修改可输入的长度由malloc_usable_size()函数返回
 ```c
 int edit_key()
@@ -88,7 +89,7 @@ int edit_key()
 	  return result;
 }
 ```
-####Remove
+#### Remove
 Remove 可以释放已经被分配的堆块，并将key_map对应位置0，杜绝了UAF漏洞的存在。
 ```c
 int remove_key()
@@ -116,7 +117,7 @@ int remove_key()
   return result;
 }
 ```
-####Change master pass
+#### Change master pass
 Change master pass可以修改master的值，不过首先要通过check_account()的检查，check_account会要求你再次输入account和master
 ```c
 signed __int64 change_master()
@@ -162,9 +163,9 @@ signed __int64 check_account()
 }
 ```
 
-###渗透
+### 渗透
  完成了初步分析之后，我们开始一步步实现渗透，首先从leak libc开始
-####Leak libc
+#### Leak libc
 如果想要使用Change master pass功能，首先得通过check_account的验证，check_account使用read接收输入，这意味着输入的字符串不会被'\x00'截断。当输入一个错误的account时，程序会打印输入，通过调试可以构造出合适长度的account来实现libc info leak from stack，这是一种常见了info leak手段。
 ```python
 account = master = "ok"
@@ -179,7 +180,7 @@ gdb-peda$ x 0x00007faba5e3e620
 0x7faba5e3e620 <_IO_2_1_stdout_>:	0x00000000fbad2887
 ```
 
-####Heap overflow
+#### Heap overflow
 Add功能允许我们自定义要分配的堆块大小，当输入的length在-8~-32之间时，malloc分配得到的chunk大小为0x20，扣去两个控制字段pre_size和size后，实际由malloc返回的堆块大小仅为0x10，这时输入title会造成堆溢出，可以覆盖相邻高地址chunk的size字段。
 
 Malloc chunk 0:
@@ -313,7 +314,7 @@ edit(1, payload)# overwrite chunk 2
 0x1fad0d0:	0x0000000000000000	0x0000000000020f31
 ```
 通过上述操作，我们实现了更大范围的堆溢出，而不是再局限于覆盖相邻chunk的size字段，可以用它覆盖相邻chunk上的FD/BK指针，来实现最后的攻击——利用fastbin attack劫持malloc_hook.
-####Fastbin attack
+#### Fastbin attack
 fastbin所包含chunk的大小为0x20 Bytes, 0x30 Bytes, 0x40 Bytes, … , 0x80 Bytes。当分配一块较小的内存(mem<=0x80 Bytes)时，首先检查对应大小的fastbin中是否包含未被使用的chunk，如果存在则直接将其从fastbin中移除并返回；否则通过其他方式（剪切top chunk）得到一块符合大小要求的chunk并返回。
 &nbsp&nbsp&nbsp&nbsp fastbin为单链表，fastbin为了快速分配回收这些较小size的chunk，并没对bk进行操作，即仅仅通过fd组成了单链表，而且其遵循后进先出(LIFO)的原则。
 &nbsp&nbsp&nbsp&nbsp 本题存在着堆溢出漏洞，分配一个fastbin然后释放掉，伪造chunk结构，再利用堆溢出修改被释放的fastbin的fd指针为伪造chunk的地址，利用malloc将伪造的chunk分配出来，可以实现任意地址写。
@@ -460,5 +461,5 @@ c.sendline(str(0x6020C0 - 0x20))
 
 c.interactive()
 ```
-###写在最后
+### 写在最后
 此题的解题套路有很多，因为自身水平有限所以只会用fastbin attack来解orz,最后能做出来也纯属运气，刚好出题人设置了全局变量来leak libc，否则无法为system传递一个正确的参数，而把malloc_hook劫持为one_gadget的话在本题是行不通的，所有的gadget都无法拿到shell。
