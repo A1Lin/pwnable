@@ -1,5 +1,5 @@
 ##SECCON 2017 Online CTF - Secure KeyManager
-@[36 solved|400 points]
+@(36 solved|400 points)
 
 >   Arch:     amd64-64-little
 >  RELRO:    Partial RELRO
