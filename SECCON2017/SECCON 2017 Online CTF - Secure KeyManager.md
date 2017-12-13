@@ -1,11 +1,9 @@
 ##SECCON 2017 Online CTF - Secure KeyManager
-@(36 solved|400 points)
-
->   Arch:     amd64-64-little
->  RELRO:    Partial RELRO
->  Stack:    Canary found
->  NX:       NX enabled
->  PIE:      No PIE (0x400000)
+>Arch:     amd64-64-little
+>RELRO:    Partial RELRO
+>Stack:    Canary found
+>NX:       NX enabled
+>PIE:      No PIE (0x400000)
  
 ### 概要
 程序开始后我们面临如下选项：
