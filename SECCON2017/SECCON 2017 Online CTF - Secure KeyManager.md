@@ -2,10 +2,10 @@
 @[36 solved|400 points]
 
 >   Arch:     amd64-64-little
-    RELRO:    Partial RELRO
-    Stack:    Canary found
-    NX:       NX enabled
-    PIE:      No PIE (0x400000)
+>  RELRO:    Partial RELRO
+>  Stack:    Canary found
+>  NX:       NX enabled
+>  PIE:      No PIE (0x400000)
  
 ### 概要
 程序开始后我们面临如下选项：
@@ -25,8 +25,8 @@
 Add功能用于创建名为KEY的结构体，结构体如下所示：
 ```c
 struct KEY{
-	char title[0x20];
-	char key[length];
+    char title[0x20];
+    char key[length];
 }
 ```
 	
@@ -39,7 +39,7 @@ int add_key()
 		index = index + 1;
 	if ( (signed int)index <= 7 )
 	{
-		puts("ADD KEY");
+	    puts("ADD KEY");
 	    printf("Input key length...", index);
 	    length = getint();
 	    ptr = malloc(length + 0x20LL);
@@ -47,18 +47,18 @@ int add_key()
 	    {
 		    printf("Input title...");
 		    getnline((const char *)ptr, 0x20);
-			printf("Input key...", 0x20);
-			getnline((const char *)ptr + 0x20, length);
-			*(&key_list + index) = ptr;
-			result = index_1;
-			key_map[(signed __int64)index] = 1;
+		    printf("Input key...", 0x20);
+		    getnline((const char *)ptr + 0x20, length);
+		    *(&key_list + index) = ptr;
+		    result = index_1;
+		    key_map[(signed __int64)index] = 1;
 	    }
 	    else
 		    result = puts("can not allocate...");    
     }
-	else
-		result = puts("can't add key any more...");
-	return result;
+    else
+	    result = puts("can't add key any more...");
+    return result;
 }
 ```
 
@@ -223,9 +223,9 @@ static size_t musable (void *mem)
 	      return malloc_check_get_size (p);
       if (chunk_is_mmapped (p))
 	  {
-		  if (DUMPED_MAIN_ARENA_CHUNK (p))
-			  return chunksize (p) - SIZE_SZ;
-		  else
+          if (DUMPED_MAIN_ARENA_CHUNK (p))
+	          return chunksize (p) - SIZE_SZ;
+          else
 		      return chunksize (p) - 2 * SIZE_SZ;
 	  }
       else if (inuse (p))
