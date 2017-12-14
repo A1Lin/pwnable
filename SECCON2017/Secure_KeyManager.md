@@ -321,7 +321,9 @@ edit(1, payload)# overwrite chunk 2
 通过上述操作，我们实现了更大范围的堆溢出，而不是再局限于覆盖相邻chunk的size字段，可以用它覆盖相邻chunk上的FD/BK指针，来实现最后的攻击——利用fastbin attack劫持malloc_hook.
 #### Fastbin attack
 fastbin所包含chunk的大小为0x20 Bytes, 0x30 Bytes, 0x40 Bytes, … , 0x80 Bytes。当分配一块较小的内存(mem<=0x80 Bytes)时，首先检查对应大小的fastbin中是否包含未被使用的chunk，如果存在则直接将其从fastbin中移除并返回；否则通过其他方式（剪切top chunk）得到一块符合大小要求的chunk并返回。
+
 fastbin为单链表，fastbin为了快速分配回收这些较小size的chunk，并没对bk进行操作，即仅仅通过fd组成了单链表，而且其遵循后进先出(LIFO)的原则。
+
 本题存在着堆溢出漏洞，分配一个fastbin然后释放掉，伪造chunk结构，再利用堆溢出修改被释放的fastbin的fd指针为伪造chunk的地址，利用malloc将伪造的chunk分配出来，可以实现任意地址写。
 ```c
 #define fastbin_index(sz) \
